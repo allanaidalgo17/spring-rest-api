@@ -2,7 +2,6 @@ GET http://localhost:8080/clients
 Accept: application/json
 
 ###
-
 GET http://localhost:8080/clients/1
 
 ###
@@ -14,3 +13,16 @@ Content-Type: application/json
     "email": "test@test",
     "phoneNumber": "55555555"
 }
+
+###
+POST http://localhost:8080/clients HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "",
+    "email": "testtest",
+    "phoneNumber": "55555555"
+}
+
+###
+DELETE http://localhost:8080/clients/2 HTTP/1.1
