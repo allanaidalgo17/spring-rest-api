@@ -1,12 +1,13 @@
-package com.serviceorder.presentation.client;
+package com.serviceorder.presentation.controller;
 
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import com.serviceorder.domain.model.client.Client;
-import com.serviceorder.domain.model.client.ClientRepository;
+import com.serviceorder.domain.model.Client;
+import com.serviceorder.domain.repository.ClientRepository;
+import com.serviceorder.domain.service.RegistrationClientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class ClientController {
     @Autowired
     private ClientRepository repository;
 
+    @Autowired
+    private RegistrationClientService service;
+
     @GetMapping
     public List<Client> listClients() {
         return repository.findAll();
@@ -47,7 +51,7 @@ public class ClientController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Client addClient(@Valid @RequestBody Client client) {
-        return repository.save(client);
+        return service.save(client);
     }
 
     @PutMapping("/{clientId}")
@@ -59,7 +63,7 @@ public class ClientController {
         }
 
         client.setId(clientId);
-        Client response = repository.save(client);
+        Client response = service.save(client);
 
         return ResponseEntity.ok(response);
     }
@@ -71,7 +75,7 @@ public class ClientController {
             return ResponseEntity.notFound().build();
         }
 
-        repository.deleteById(clientId);
+        service.delete(clientId);
 
         return ResponseEntity.noContent().build();
     }

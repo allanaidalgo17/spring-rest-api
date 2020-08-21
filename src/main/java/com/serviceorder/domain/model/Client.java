@@ -1,4 +1,4 @@
-package com.serviceorder.domain.model.client;
+package com.serviceorder.domain.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
