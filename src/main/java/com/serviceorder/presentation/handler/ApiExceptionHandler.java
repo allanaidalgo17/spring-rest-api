@@ -1,9 +1,10 @@
 package com.serviceorder.presentation.handler;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import com.serviceorder.domain.exception.BusinessException;
+import com.serviceorder.domain.exception.ResourceNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -28,7 +29,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleBusinessException(BusinessException ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        Problem problem = createProblem(status, ex.getMessage(), LocalDateTime.now(), null);
+        Problem problem = createProblem(status, ex.getMessage(), OffsetDateTime.now(), null);
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(BusinessException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        Problem problem = createProblem(status, ex.getMessage(), OffsetDateTime.now(), null);
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
@@ -47,13 +57,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         String message = new String("One or more invalid fields. Please, try again with valid information.");
 
-        Problem problem = createProblem(status, message, LocalDateTime.now(), fields);
+        Problem problem = createProblem(status, message, OffsetDateTime.now(), fields);
 
         return super.handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     private Problem createProblem(HttpStatus status, String message,
-                 LocalDateTime dateTime, ArrayList<Field> fields) {
+                OffsetDateTime dateTime, ArrayList<Field> fields) {
 
         Problem problem = new Problem();
         problem.setStatus(status.value());

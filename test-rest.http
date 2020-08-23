@@ -26,3 +26,31 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:8080/clients/4 HTTP/1.1
+
+###
+GET http://localhost:8080/service-orders HTTP/1.1
+
+###
+POST http://localhost:8080/service-orders HTTP/1.1
+Content-Type: application/json
+
+{
+    "client": {
+        "id": 1
+    },
+    "description": "service order description",
+    "price": 300.50,
+    "phoneNumber": "55555555"
+}
+
+###
+POST http://localhost:8080/service-orders HTTP/1.1
+Content-Type: application/json
+
+{
+    "client": {
+        "id": 2
+    },
+    "description": "service order description",
+    "price": 300.50
+}
