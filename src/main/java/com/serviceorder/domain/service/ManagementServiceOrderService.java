@@ -1,6 +1,8 @@
 package com.serviceorder.domain.service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import com.serviceorder.domain.exception.BusinessException;
 import com.serviceorder.domain.exception.ResourceNotFoundException;
@@ -27,7 +29,15 @@ public class ManagementServiceOrderService {
     @Autowired
     private CommentRepository commentRepository;
 
-    public ServiceOrder save(ServiceOrder serviceOrder) throws BusinessException {
+    public List<ServiceOrder> listServiceOrders() {
+        return repository.findAll();
+    }
+
+    public Optional<ServiceOrder> getServiceOrderById(Long serviceOrderId) {
+        return repository.findById(serviceOrderId);
+    }
+
+    public ServiceOrder createServiceOrder(ServiceOrder serviceOrder) throws BusinessException {
         Client client = clientRepository.findById(serviceOrder.getClient().getId())
                 .orElseThrow(() -> new BusinessException("Client not found."));
         
@@ -38,7 +48,7 @@ public class ManagementServiceOrderService {
         return repository.save(serviceOrder);
     }
 
-    public void delete(Long serviceOrderId){
+    public void removeServiceOrder(Long serviceOrderId){
         repository.deleteById(serviceOrderId);
     }
 
@@ -46,16 +56,29 @@ public class ManagementServiceOrderService {
         ServiceOrder serviceOrder = getServiceOrder(serviceOrderId);
 
         if(!ServiceOrderStatus.OPENED.equals(serviceOrder.getStatus())){
-            throw new BusinessException("Service order cannot be ended.");
+            throw new BusinessException("Service order cannot be closed.");
         }
 
         serviceOrder.setStatus(ServiceOrderStatus.FINALIZED);
-        serviceOrder.setEndingDate(OffsetDateTime.now());
+        serviceOrder.setClosingDate(OffsetDateTime.now());
 
         repository.save(serviceOrder);
     }
 
-    public Comment addComment(Long serviceOrderId, String description) {
+    public void cancelServiceOrder(Long serviceOrderId) {
+        ServiceOrder serviceOrder = getServiceOrder(serviceOrderId);
+
+        if(!ServiceOrderStatus.OPENED.equals(serviceOrder.getStatus())){
+            throw new BusinessException("Service order cannot be closed.");
+        }
+
+        serviceOrder.setStatus(ServiceOrderStatus.CANCELED);
+        serviceOrder.setClosingDate(OffsetDateTime.now());
+
+        repository.save(serviceOrder);
+    }
+
+    public Comment createComment(Long serviceOrderId, String description) {
         ServiceOrder serviceOrder = getServiceOrder(serviceOrderId);
 
         Comment comment = new Comment();
@@ -66,9 +89,13 @@ public class ManagementServiceOrderService {
         return commentRepository.save(comment);
     }
 
-    private ServiceOrder getServiceOrder(Long serviceOrederId) {
-        return repository.findById(serviceOrederId)
+    private ServiceOrder getServiceOrder(Long serviceOrderId) {
+        return repository.findById(serviceOrderId)
             .orElseThrow(() -> new ResourceNotFoundException("Service order not found."));
+    }
+
+    public Boolean existsById(Long id) {
+        return repository.existsById(id);
     }
     
 }

@@ -1,5 +1,6 @@
 package com.serviceorder.domain.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.serviceorder.domain.exception.BusinessException;
@@ -15,7 +16,15 @@ public class RegistrationClientService {
     @Autowired
     private ClientRepository repository;
 
-    public Client save(Client client) throws BusinessException {
+    public List<Client> listClients() {
+        return repository.findAll();
+    }
+
+    public Optional<Client> getClientById(Long clientId) {
+        return repository.findById(clientId);
+    }
+
+    public Client createClient(Client client) throws BusinessException {
         Optional<Client> result = repository.findByEmail(client.getEmail());
         
         if(result.isPresent() && !result.get().equals(client)) {
@@ -25,8 +34,12 @@ public class RegistrationClientService {
         return repository.save(client);
     }
 
-    public void delete(Long id){
+    public void removeClient(Long id){
         repository.deleteById(id);
+    }
+
+    public Boolean existsById(Long id) {
+        return repository.existsById(id);
     }
     
 }

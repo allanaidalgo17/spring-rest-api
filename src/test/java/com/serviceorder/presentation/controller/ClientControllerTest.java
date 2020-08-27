@@ -1,4 +1,4 @@
-package com.serviceorder.presentation.client;
+package com.serviceorder.presentation.controller;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -1,10 +1,13 @@
 package com.serviceorder.domain.model;
 
+import java.io.Serializable;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,12 +26,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.serviceorder.domain.validation.ValidationGroups;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
-public class ServiceOrder {
+@Data
+@NoArgsConstructor
+public class ServiceOrder implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @NotBlank
     private String description;
@@ -39,8 +49,9 @@ public class ServiceOrder {
     @JsonProperty(access = Access.READ_ONLY)
     private OffsetDateTime openingDate;
 
+    @Column(name = "ending_date")
     @JsonProperty(access = Access.READ_ONLY)
-    private OffsetDateTime endingDate;
+    private OffsetDateTime closingDate;
 
     @Valid
     @ConvertGroup(from = Default.class, to = ValidationGroups.ClientId.class)
@@ -55,93 +66,11 @@ public class ServiceOrder {
     @Enumerated(EnumType.STRING)
     private ServiceOrderStatus status;
 
-    public Long getId() {
-        return Id;
-    }
-
-    public void setId(Long id) {
-        Id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
+    public ServiceOrder(Long id, String description, BigDecimal price, Client client) {
+        this.id = id;
         this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public OffsetDateTime getOpeningDate() {
-        return openingDate;
-    }
-
-    public void setOpeningDate(OffsetDateTime openingDate) {
-        this.openingDate = openingDate;
-    }
-
-    public OffsetDateTime getEndingDate() {
-        return endingDate;
-    }
-
-    public void setEndingDate(OffsetDateTime endingDate) {
-        this.endingDate = endingDate;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
         this.client = client;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public ServiceOrderStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ServiceOrderStatus status) {
-        this.status = status;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((Id == null) ? 0 : Id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ServiceOrder other = (ServiceOrder) obj;
-        if (Id == null) {
-            if (other.Id != null)
-                return false;
-        } else if (!Id.equals(other.Id))
-            return false;
-        return true;
     }
 
 }

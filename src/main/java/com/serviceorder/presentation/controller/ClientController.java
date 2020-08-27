@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import com.serviceorder.domain.model.Client;
-import com.serviceorder.domain.repository.ClientRepository;
 import com.serviceorder.domain.service.RegistrationClientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientController {
 
     @Autowired
-    private ClientRepository repository;
-
-    @Autowired
     private RegistrationClientService service;
 
     @GetMapping
     public List<Client> listClients() {
-        return repository.findAll();
+        return service.listClients();
     }
 
     @GetMapping("/{clientId}")
     public ResponseEntity<Client> getClientById(@PathVariable Long clientId) {
-        Optional<Client> client = repository.findById(clientId);
+        Optional<Client> client = service.getClientById(clientId);
 
         if(client.isPresent()) {
             return ResponseEntity.ok(client.get());
@@ -50,20 +46,20 @@ public class ClientController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Client addClient(@Valid @RequestBody Client client) {
-        return service.save(client);
+    public Client createClient(@Valid @RequestBody Client client) {
+        return service.createClient(client);
     }
 
     @PutMapping("/{clientId}")
     public ResponseEntity<Client> updateClient(@PathVariable Long clientId,
              @Valid @RequestBody Client client) {
 
-        if(!repository.existsById(clientId)) {
+        if(!service.existsById(clientId)) {
             return ResponseEntity.notFound().build();
         }
 
         client.setId(clientId);
-        Client response = service.save(client);
+        Client response = service.createClient(client);
 
         return ResponseEntity.ok(response);
     }
@@ -71,11 +67,11 @@ public class ClientController {
     @DeleteMapping("/{clientId}")
     public ResponseEntity<Void> removeClient(@PathVariable Long clientId) {
 
-        if(!repository.existsById(clientId)) {
+        if(!service.existsById(clientId)) {
             return ResponseEntity.notFound().build();
         }
 
-        service.delete(clientId);
+        service.removeClient(clientId);
 
         return ResponseEntity.noContent().build();
     }

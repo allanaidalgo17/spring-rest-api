@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.serviceorder.domain.model.ServiceOrder;
-import com.serviceorder.domain.repository.ServiceOrderRepository;
 import com.serviceorder.domain.service.ManagementServiceOrderService;
 import com.serviceorder.presentation.model.ServiceOrderDTO;
 import com.serviceorder.presentation.model.ServiceOrderInput;
@@ -30,9 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ServiceOrderController {
 
     @Autowired
-    private ServiceOrderRepository repository;
-
-    @Autowired
     private ManagementServiceOrderService service;
 
     @Autowired
@@ -40,12 +36,12 @@ public class ServiceOrderController {
 
     @GetMapping
     public List<ServiceOrderDTO> listServiceOrders() {
-        return toCollectionModel(repository.findAll());
+        return toCollectionModel(service.listServiceOrders());
     }
 
     @GetMapping("/{serviceOrderId}")
     public ResponseEntity<ServiceOrderDTO> getServiceOrderById(@PathVariable Long serviceOrderId) {
-        Optional<ServiceOrder> serviceOrder = repository.findById(serviceOrderId);
+        Optional<ServiceOrder> serviceOrder = service.getServiceOrderById(serviceOrderId);
 
         if(serviceOrder.isPresent()) {
             ServiceOrderDTO serviceOrderDTO = toModel(serviceOrder.get());
@@ -57,21 +53,21 @@ public class ServiceOrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ServiceOrderDTO addServiceOrder(@Valid @RequestBody ServiceOrderInput serviceOrderInput) {
-        return toModel(repository.save(toEntity(serviceOrderInput)));
+    public ServiceOrderDTO createServiceOrder(@Valid @RequestBody ServiceOrderInput serviceOrderInput) {
+        return toModel(service.createServiceOrder(toEntity(serviceOrderInput)));
     }
 
     @PutMapping("/{serviceOrderId}")
     public ResponseEntity<ServiceOrder> updateServiceOrder(@PathVariable Long serviceOrderId,
              @Valid @RequestBody ServiceOrderInput serviceOrderInput) {
 
-        if(!repository.existsById(serviceOrderId)) {
+        if(!service.existsById(serviceOrderId)) {
             return ResponseEntity.notFound().build();
         }
 
         ServiceOrder serviceOrder = toEntity(serviceOrderInput);
         serviceOrder.setId(serviceOrderId);
-        ServiceOrder response = service.save(serviceOrder);
+        ServiceOrder response = service.createServiceOrder(serviceOrder);
 
         return ResponseEntity.ok(response);
     }

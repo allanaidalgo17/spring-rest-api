@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import com.serviceorder.domain.exception.ResourceNotFoundException;
 import com.serviceorder.domain.model.Comment;
 import com.serviceorder.domain.model.ServiceOrder;
-import com.serviceorder.domain.repository.CommentRepository;
 import com.serviceorder.domain.repository.ServiceOrderRepository;
 import com.serviceorder.domain.service.ManagementServiceOrderService;
 import com.serviceorder.presentation.model.CommentDTO;
@@ -51,7 +50,7 @@ public class CommentController {
     public CommentDTO addComment(@PathVariable Long serviceOrderId,
                 @Valid @RequestBody CommentInput commentInput) {
 
-        Comment comment = service.addComment(serviceOrderId, commentInput.getDescription());
+        Comment comment = service.createComment(serviceOrderId, commentInput.getDescription());
         return toModel(comment);
     }
 
