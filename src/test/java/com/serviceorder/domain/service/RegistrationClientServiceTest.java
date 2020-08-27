@@ -35,9 +35,11 @@ public class RegistrationClientServiceTest {
     @Mock
     private ClientRepository repository;
 
+    private static final Long CLIENT_ID = 1l;
+
     @Test
     public void shouldSaveClientSuccessfully() {
-        Client client = new Client(1l, "name", "name@email.com", "55555555");
+        Client client = createClient(CLIENT_ID);
 
         when(repository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(repository.save(client)).thenReturn(client);
@@ -50,7 +52,7 @@ public class RegistrationClientServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenSaveClientWithExistingEmail() {
-        Client client = new Client(1l, "name", "name@email.com", "55555555");
+        Client client = createClient(CLIENT_ID);
 
         when(repository.findByEmail(anyString())).thenReturn(Optional.of(new Client()));
 
@@ -64,9 +66,9 @@ public class RegistrationClientServiceTest {
     @Test
     public void shouldListAllClients() {
         List<Client> clients = new ArrayList<>();
-        clients.add(new Client(1l, "name", "name@email.com", "55555555"));
-        clients.add(new Client(2l, "name2", "name2@email.com", "55555555"));
-        clients.add(new Client(3l, "name3", "name3@email.com", "55555555"));
+        clients.add(createClient(CLIENT_ID));
+        clients.add(createClient(2l));
+        clients.add(createClient(3l));
 
         when(repository.findAll()).thenReturn(clients);
 
@@ -78,7 +80,7 @@ public class RegistrationClientServiceTest {
 
     @Test
     public void shouldFindClientById() {
-        Client client = new Client(1l, "name", "name@email.com", "55555555");
+        Client client = createClient(CLIENT_ID);
 
         when(repository.findById(anyLong())).thenReturn(Optional.of(client));
 
@@ -90,35 +92,33 @@ public class RegistrationClientServiceTest {
 
     @Test
     public void shouldDeleteClient() {
-        Long clientId = 1l;
+        service.removeClient(CLIENT_ID);
 
-        service.removeClient(clientId);
-
-        verify(repository, times(1)).deleteById(clientId);
+        verify(repository, times(1)).deleteById(CLIENT_ID);
     }
 
     @Test
     public void shouldReturnThatClientExists() {
-        Long clientId = 1l;
-
         when(repository.existsById(anyLong())).thenReturn(true);
 
-        Boolean result = service.existsById(clientId);
+        Boolean result = service.existsById(CLIENT_ID);
 
-        verify(repository, times(1)).existsById(clientId);
+        verify(repository, times(1)).existsById(CLIENT_ID);
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnThatClientNotExists() {
-        Long clientId = 1l;
-
         when(repository.existsById(anyLong())).thenReturn(false);
 
-        Boolean result = service.existsById(clientId);
+        Boolean result = service.existsById(CLIENT_ID);
 
-        verify(repository, times(1)).existsById(clientId);
+        verify(repository, times(1)).existsById(CLIENT_ID);
         assertFalse(result);
+    }
+
+    private Client createClient(Long id) {
+        return new Client(id, "name", "name@email.com", "55555555");
     }
     
 }
