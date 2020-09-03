@@ -138,7 +138,7 @@ pipeline {
                 script {
                     pom = readMavenPom file: 'pom.xml'
                     sh 'sed -i '/image/s/\$/:${pom.version}/' deploy/deploymentPROD.yml'
-                    sh 'kubectl create -f deploy/qa/deploymentPROD.yml'
+                    sh 'kubectl create -f deploy/deploymentPROD.yml'
                 }
             }
         }
