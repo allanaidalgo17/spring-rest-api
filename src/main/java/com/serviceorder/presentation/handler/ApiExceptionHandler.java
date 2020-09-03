@@ -26,52 +26,56 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private MessageSource messageSource;
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Object> handleBusinessException(BusinessException ex, WebRequest request) {
+    public ResponseEntity<Object> handleBusinessException(final BusinessException ex,
+            final WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        Problem problem = createProblem(status, ex.getMessage(), OffsetDateTime.now(), null);
+        Problem problem = createProblem(status.value(), ex.getMessage(), OffsetDateTime.now(), null);
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(BusinessException ex, WebRequest request) {
+    public ResponseEntity<Object> handleResourceNotFoundException(final BusinessException ex,
+            final WebRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
 
-        Problem problem = createProblem(status, ex.getMessage(), OffsetDateTime.now(), null);
+        Problem problem = createProblem(status.value(), ex.getMessage(), OffsetDateTime.now(), null);
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-            HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex,
+            final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
 
         ArrayList<Field> fields = new ArrayList<Field>();
 
         ex.getBindingResult().getAllErrors().forEach(
-            error -> fields.add(
-                new Field(((FieldError) error).getField(),
-                    messageSource.getMessage(error, LocaleContextHolder.getLocale())))
+            error -> fields.add(Field.builder()
+                                .name(((FieldError) error).getField())
+                                .message(messageSource.getMessage(error, LocaleContextHolder.getLocale()))
+                                .build())
         );
 
-        String message = new String("One or more invalid fields. Please, try again with valid information.");
+        String message = new StringBuilder()
+                .append("One or more invalid fields. Please, try again with valid information.")
+                .toString();
 
-        Problem problem = createProblem(status, message, OffsetDateTime.now(), fields);
+        Problem problem = createProblem(status.value(), message, OffsetDateTime.now(), fields);
 
         return super.handleExceptionInternal(ex, problem, headers, status, request);
     }
 
-    private Problem createProblem(HttpStatus status, String message,
-                OffsetDateTime dateTime, ArrayList<Field> fields) {
+    private Problem createProblem(final Integer status, final String message, final OffsetDateTime dateTime,
+            final ArrayList<Field> fields) {
 
-        Problem problem = new Problem();
-        problem.setStatus(status.value());
-        problem.setMessage(message);
-        problem.setDateTime(dateTime);
-        problem.setFields(fields);
-
-        return problem;
+        return Problem.builder()
+                    .status(status)
+                    .message(message)
+                    .dateTime(dateTime)
+                    .fields(fields)
+                    .build();
     }
     
 }
