@@ -39,9 +39,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                script {
-                    sh 'make test'
-                    junit allowEmptyResults: true, keepLongStdio: true, testResults: 'target/surefire-reports/*/.xml'
+                sh 'make test'
+                post {
+                    always {
+                        junit allowEmptyResults: true, keepLongStdio: true, testResults: 'target/surefire-reports/*/.xml'
+                    }
                 }
             }
         }
